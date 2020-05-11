@@ -14,8 +14,8 @@ public class Test {
 
         MyProject newMyProject = new MyProject();
 
-        System.out.println(newMyProject.floodFillCount(testArray, 1, 4));
-        //System.out.println(newMyProject.brightestSquare(testArr2, 3));
+        //System.out.println(newMyProject.floodFillCount(testArray, 1, 4));
+        System.out.println(newMyProject.brightestSquare(testArray, 3));
 
 
 

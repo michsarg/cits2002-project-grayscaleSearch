@@ -18,7 +18,7 @@ public class MyProject implements Project {
     int size;
 
     int k;
-    int totalBrightness;
+    int brightestSquare;
 
     // CONSTRUCTOR
     // no parameter method required
@@ -48,23 +48,16 @@ public class MyProject implements Project {
      */
     
     
-    //problem: assumes square when rectangle is input
-    
     public int floodFillCount(int[][] image, int row, int col){
         
     	//test for black pixel selection
     	if (image[row][col] == 0) return 0;
     	    	
-    	
     	changedPixels = 1;
         this.image = image;
         this.colourSelected = image[row][col];     
         this.rowLength = image.length;
         this.colLength = image[0].length;
-        
-//        System.out.println(rowLength);
-//        System.out.println(colLength);
-        
         this.checked = new boolean[rowLength][colLength];
         this.checked[row][col] = true;
         adjacencyCheck(row, col);
@@ -108,65 +101,40 @@ public class MyProject implements Project {
      * @return The total brightness of the brightest square
      */
     public int brightestSquare(int[][] image, int k){
-        // do this with a binary search, dividing up the grid recursively
-        // at the lower level do a more fine grained search
-        //      use window iterator???
 
         this.k = k;
         this.image = image;
-        this.size = image.length;
-        this.totalBrightness = 0;
-
-        // divide up the image into k sized squares and find the brightest
-        //then search a range of 4 for the fine grained location of brightest
-       // System.out.println("k: " + k);
-       // System.out.println("size: " + size);
-        //problem is k doesnt neatly fit into size !!!
-
-        int newSize = (size/k);
-        //System.out.println("newSize: " + newSize);
-
-
-        int[][] imageSquared = new int[newSize][newSize];
-        for (int i = 0; i<newSize; i++) {
-            for (int j = 0; j<newSize; j++) {
-                imageSquared[i][j] = -1;
-            }
+        this.colourSelected = image[row][col];     
+        this.rowLength = image.length;
+        this.colLength = image[0].length;
+        
+        //System.out.println("rowLength = " + rowLength);
+        //System.out.println("colLength = " + colLength);
+        
+        this.brightestSquare = 0;
+        
+        for (int r = 0; r < (rowLength-k+1); r++) {
+        	for (int c = 0; c < (colLength-k+1); c++) {
+        		
+        		//System.out.println("r = " + r + "  c = " + c );
+        		
+        		int checkSquare = 0; 
+        		
+        		for (int i = r; i<(r+k); i++ ) {
+        			for (int j = c; j<(c+k); j++ ) {
+        				
+        				
+        				//System.out.println("image["+i+"]["+j+"] = " + image[i][j]);
+                        checkSquare += image[i][j];
+        			
+        			}
+        		}
+        		
+        		if (checkSquare>brightestSquare) brightestSquare = checkSquare;
+        		//System.out.println(checkSquare);
+        	}
         }
-      // System.out.println("imageSquared[0][0]: " + imageSquared[0][0]);
-
-        for (int r = 0; r<(size/k); r++) {
-            for (int c = 0; c<(size/k); c++) {
-
-                int sumCount = 0;
-                for (int h = 0; h<k; h++){
-                    for (int v = 0; v<k; v++){
-                        sumCount += this.image[(r*k)+h][(c*k)+v];
-                        //System.out.println("sumCount: " + sumCount);
-                    }
-                }
-                imageSquared[r][c] = sumCount;
-
-            }
-        }
-
-        //System.out.println(Arrays.deepToString(imageSquared));
-        //System.out.println(imageSquared[0][0]);
-
-        return sumSquare(0, 0, size);
-
-    }
-
-
-
-    private int sumSquare(int rowStart, int colStart, int size) {
-        int sum = 0;
-        for (int r = 0; r<size; r++){
-            for (int c = 0; c<size; c++) {
-             sum += this.image[rowStart+r][colStart+c];
-            }
-        }
-        return sum;
+        return brightestSquare;
     }
 
     /**
