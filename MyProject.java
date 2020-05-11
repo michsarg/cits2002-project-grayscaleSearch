@@ -157,8 +157,13 @@ public class MyProject implements Project {
      * @return The minimum brightness of any path from (ur, uc) to (vr, vc)
      */
 
+
+    int[] darkestAdjacent;
+    int brightest;
+
     public int darkestPath(int[][] image, int ur, int uc, int vr, int vc){
         
+        brightest = 0;
         this.image = image;
         this.row = ur;
         this.col = uc;
@@ -166,66 +171,73 @@ public class MyProject implements Project {
         this.rowLength = image.length;
         this.colLength = image[0].length;
 
+        //for checking not repeating
+        this.checked = new boolean[rowLength][colLength];
+        this.checked[row][col] = true;
 
-        int[] darkestAdjacent = findDarkestAdjacent(ur, uc);
+        //System.out.println("Start Darkest Path");
 
-        return darkestAdjacent[2];
+        darkestAdjacent = findDarkestAdjacent(ur, uc);
+
+
+        //@TODO figure out how to terminate the search
+        while(checked[vr][vc] == false) {
+            darkestAdjacent = findDarkestAdjacent(darkestAdjacent[0], darkestAdjacent[1]);
+            if (darkestAdjacent[2] > brightest) brightest = darkestAdjacent[2];
+        }
+
+        //System.out.println("brightest: " + brightest);
+        return brightest;
     
     }
 
     public int[] findDarkestAdjacent(int focusRow, int focusCol){
 
-        // what do i want this to return??? 
-        //  the row col and brightness of darkest adjacent
-        // need to check within valid range
+        //System.out.println("focus: [" + focusRow + "][" + focusCol + "]");
 
         // darkest[0] = row
         // darkest[1] = col
         // darkest[2] = brightness
         int[] darkest = {-1, -1, 300};
 
-        int north = (pixelBrightness(focusRow-1, focusCol));
-        int east  = (pixelBrightness(focusRow,   focusCol+1));
-        int south = (pixelBrightness(focusRow+1, focusCol));
-        int west  = (pixelBrightness(focusRow,   focusCol-1));
+        //set up array of co-ordinates and brightness
+        int[][] nextPos = { {focusRow-1, focusCol  , 300},    //north
+                            {focusRow  , focusCol+1, 300},    //east
+                            {focusRow+1, focusCol ,  300},    //south
+                            {focusRow  , focusCol-1, 300}};   //west
 
-        if  (north < darkest[2]) {
-            darkest[0] = focusRow+1;
-            darkest[1] = focusCol;
-            darkest[2] = north;
+        for (int i = 0; i < 4; i++) {
+            // check for range
+            if (nextPos[i][0] >= 0           &&
+                nextPos[i][0] <  rowLength   &&
+                nextPos[i][1] >= 0           &&
+                nextPos[i][1] < colLength){
+                    
+                    //check for checked
+                    if (checked[nextPos[i][0]][nextPos[i][1]] == false ) {
+                        nextPos[i][2] = image[nextPos[i][0]][nextPos[i][1]];
+                    
+                        //check for checked and highest
+                        if (nextPos[i][2] < darkest[2]) {
+                            darkest[0] = nextPos[i][0];
+                            darkest[1] = nextPos[i][1];
+                            darkest[2] = nextPos[i][2];
+                        }
+                    }
+            }
+
         }
-        if  (east < darkest[2]) {
-            darkest[0] = focusRow;
-            darkest[1] = focusCol+1;
-            darkest[2] = east;
-        }
-        if  (south < darkest[2]) {
-            darkest[0] = focusRow-1;
-            darkest[1] = focusCol;
-            darkest[2] = south;
-        }
-        if  (west < darkest[2]) {
-            darkest[0] = focusRow;
-            darkest[1] = focusCol-1;
-            darkest[2] = west;
-        }
+
+        //System.out.println("darkest neighbour: [" + darkest[0] + "][" + darkest[1] + "] : " + darkest[2]);
+        //System.out.println(" ");
+
+        checked[darkest[0]][darkest[1]] = true;
 
         return darkest;
 
     }
 
-    public int pixelBrightness (int focusRow, int focusCol){
-        
-        int pixelBrightness = 300; // sentinal value
 
-        if (focusRow >=0 && focusRow < rowLength &&
-            focusCol >=0 && focusCol < colLength)
-
-            pixelBrightness = image[focusRow][focusCol];
-
-        return pixelBrightness;
-    
-    }
     
 
     /**
@@ -248,7 +260,7 @@ public class MyProject implements Project {
      * @return The list of brightest pixels for each query row segment
      */
     public int[] brightestPixelsInRowSegments(int[][] image, int[][] queries){
-    	int[] test = { 0, 1, 2};
+    	int[] test = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     	return test;
     }
 
