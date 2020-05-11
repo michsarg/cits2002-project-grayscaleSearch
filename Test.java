@@ -15,7 +15,8 @@ public class Test {
         MyProject newMyProject = new MyProject();
 
         //System.out.println(newMyProject.floodFillCount(testArray, 1, 4));
-        System.out.println(newMyProject.brightestSquare(testArray, 3));
+        //System.out.println(newMyProject.brightestSquare(testArray, 3));
+        System.out.println(newMyProject.darkestPath(testArray, 0, 0, 1, 0));
 
 
 

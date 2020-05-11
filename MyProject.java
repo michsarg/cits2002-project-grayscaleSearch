@@ -156,9 +156,77 @@ public class MyProject implements Project {
      * @param vc The column index of the end pixel for the path
      * @return The minimum brightness of any path from (ur, uc) to (vr, vc)
      */
+
     public int darkestPath(int[][] image, int ur, int uc, int vr, int vc){
-    	return 0;
+        
+        this.image = image;
+        this.row = ur;
+        this.col = uc;
+
+        this.rowLength = image.length;
+        this.colLength = image[0].length;
+
+
+        int[] darkestAdjacent = findDarkestAdjacent(ur, uc);
+
+        return darkestAdjacent[2];
+    
     }
+
+    public int[] findDarkestAdjacent(int focusRow, int focusCol){
+
+        // what do i want this to return??? 
+        //  the row col and brightness of darkest adjacent
+        // need to check within valid range
+
+        // darkest[0] = row
+        // darkest[1] = col
+        // darkest[2] = brightness
+        int[] darkest = {-1, -1, 300};
+
+        int north = (pixelBrightness(focusRow-1, focusCol));
+        int east  = (pixelBrightness(focusRow,   focusCol+1));
+        int south = (pixelBrightness(focusRow+1, focusCol));
+        int west  = (pixelBrightness(focusRow,   focusCol-1));
+
+        if  (north < darkest[2]) {
+            darkest[0] = focusRow+1;
+            darkest[1] = focusCol;
+            darkest[2] = north;
+        }
+        if  (east < darkest[2]) {
+            darkest[0] = focusRow;
+            darkest[1] = focusCol+1;
+            darkest[2] = east;
+        }
+        if  (south < darkest[2]) {
+            darkest[0] = focusRow-1;
+            darkest[1] = focusCol;
+            darkest[2] = south;
+        }
+        if  (west < darkest[2]) {
+            darkest[0] = focusRow;
+            darkest[1] = focusCol-1;
+            darkest[2] = west;
+        }
+
+        return darkest;
+
+    }
+
+    public int pixelBrightness (int focusRow, int focusCol){
+        
+        int pixelBrightness = 300; // sentinal value
+
+        if (focusRow >=0 && focusRow < rowLength &&
+            focusCol >=0 && focusCol < colLength)
+
+            pixelBrightness = image[focusRow][focusCol];
+
+        return pixelBrightness;
+    
+    }
+    
 
     /**
      * Compute the results of a list of queries on the given image.
