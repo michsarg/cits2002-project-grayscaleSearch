@@ -2,6 +2,8 @@
 * CITS2200 Project
 * @author Michael Sargeant
 * */
+import java.util.Arrays;
+
 
 public class MyProject implements Project {
 
@@ -192,31 +194,22 @@ public class MyProject implements Project {
     }
 
     public int[] findDarkestAdjacent(int focusRow, int focusCol){
-
-        //System.out.println("focus: [" + focusRow + "][" + focusCol + "]");
-
         // darkest[0] = row
         // darkest[1] = col
         // darkest[2] = brightness
         int[] darkest = {-1, -1, 300};
-
         //set up array of co-ordinates and brightness
         int[][] nextPos = { {focusRow-1, focusCol  , 300},    //north
                             {focusRow  , focusCol+1, 300},    //east
                             {focusRow+1, focusCol ,  300},    //south
                             {focusRow  , focusCol-1, 300}};   //west
-
         for (int i = 0; i < 4; i++) {
             // check for range
-            if (nextPos[i][0] >= 0           &&
-                nextPos[i][0] <  rowLength   &&
-                nextPos[i][1] >= 0           &&
-                nextPos[i][1] < colLength){
-                    
+            if (nextPos[i][0] >= 0  &&  nextPos[i][0] < rowLength   &&
+                nextPos[i][1] >= 0  &&  nextPos[i][1] < colLength){
                     //check for checked
                     if (checked[nextPos[i][0]][nextPos[i][1]] == false ) {
-                        nextPos[i][2] = image[nextPos[i][0]][nextPos[i][1]];
-                    
+                        nextPos[i][2] = image[nextPos[i][0]][nextPos[i][1]];       
                         //check for checked and highest
                         if (nextPos[i][2] < darkest[2]) {
                             darkest[0] = nextPos[i][0];
@@ -225,16 +218,9 @@ public class MyProject implements Project {
                         }
                     }
             }
-
         }
-
-        //System.out.println("darkest neighbour: [" + darkest[0] + "][" + darkest[1] + "] : " + darkest[2]);
-        //System.out.println(" ");
-
         checked[darkest[0]][darkest[1]] = true;
-
         return darkest;
-
     }
 
 
@@ -259,12 +245,21 @@ public class MyProject implements Project {
      * @param queries The list of query row segments
      * @return The list of brightest pixels for each query row segment
      */
+
     public int[] brightestPixelsInRowSegments(int[][] image, int[][] queries){
-    	int[] test = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    	return test;
+        int queriesLength = queries.length;
+        int[] brightestList = new int[queriesLength];
+        for (int i=0; i<queriesLength; i++){
+            int brightest = 0;
+            int row = queries[i][0];
+            int startCol = queries[i][1];
+            int upToCol = queries[i][2];
+            for (int j=startCol; j<upToCol; j++) {
+                if (image[row][j] > brightest) brightest = image[row][j];
+            }
+            brightestList[i] = brightest;
+        }
+        return brightestList;
     }
-
-
-
 
 }
