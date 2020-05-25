@@ -37,9 +37,9 @@ public class Test {
         MyProject newMyProject = new MyProject();
 
         //System.out.println(newMyProject.floodFillCount(testArray, 1, 4));
-        //System.out.println(newMyProject.brightestSquare(testArray, 3));
+        System.out.println("bS: " + newMyProject.brightestSquare(testArray3, 3));
         //System.out.println(newMyProject.darkestPath(testArray2, 1, 0, 0, 1));
-        System.out.println("bPIR: " + Arrays.toString(newMyProject.brightestPixelsInRowSegments(testArray3, queries)));
+        //System.out.println("bPIR: " + Arrays.toString(newMyProject.brightestPixelsInRowSegments(testArray3, queries)));
 
 
     }
