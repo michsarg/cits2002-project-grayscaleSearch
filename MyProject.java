@@ -3,7 +3,7 @@
 * @author Michael Sargeant
 * */
 
-import java.util.Arrays;
+//import java.util.Arrays;
 
 
 public class MyProject implements Project {
@@ -92,33 +92,80 @@ public class MyProject implements Project {
        
         int brightestSquare = 0;
         int rowCount = image.length;
-        System.out.println("rowCount: " + rowCount);
+            //System.out.println("rowCount: " + rowCount);
         int colCount = image[0].length;
-        System.out.println("colCount: " + colCount);
-        int[] pixelArray = new int[rowCount*colCount];
-        System.out.println("pixelArray.length: " + pixelArray.length);
+            //System.out.println("colCount: " + colCount);
 
-        int pixelCount = 0;
-        for (int row = 0; row<rowCount; row++){
-            for ( int col = 0; col<colCount; col++){
-                pixelArray[pixelCount] = image[row][col];
-                pixelCount++;
+
+        int squareRows = 0;
+        int squareCols = 0;
+        for (int r=0; r+k<=rowCount; r++) squareRows++;
+        for (int r=0; r+k<=colCount; r++) squareCols++;
+            //System.out.println("squareRows: " + squareRows);
+            //System.out.println("squareCols: " + squareCols);
+        int[][] rowBarArray = new int[rowCount][squareCols];
+            //System.out.println("rowBarArray.length: " + rowBarArray.length);
+            //System.out.println("rowBarArray[0].length: " + rowBarArray[0].length);
+
+        // move down the rows
+        for (int r=0; r<rowCount; r++){
+
+            // calculate first row bar of k length
+            for (int c=0; c<k; c++){
+                rowBarArray[r][0] += image[r][c];
+            }
+            //System.out.println("rowBarArray["+r+"][0]: " + rowBarArray[r][0]);
+
+            // calculate other row bars to the right, across columns
+            for (int c=1; c+k<=colCount; c++){
+                rowBarArray[r][c] = rowBarArray[r][c-1];
+                rowBarArray[r][c] -= image[r][c-1];
+                rowBarArray[r][c] += image[r][c+k-1];
+                //System.out.println("rowBarArray["+r+"]["+c+"]: " + rowBarArray[r][c]);
+            
+            
+                // could you put an if statement in here
+                // which detects three prior row segments
+                // then adds them up??????
+                if (r >= k-1) {
+
+                    //System.out.println("r: " + r);
+                    int thisSquare = 0;
+                    for (int j=0; j<k; j++){
+                        //System.out.println("test");
+                        thisSquare += rowBarArray[r-j][c];
+                    }
+
+                    //System.out.println("thisSquare: " + thisSquare);
+                    if(thisSquare>brightestSquare) brightestSquare=thisSquare;
+                }
+
+
+            }
+
+
+
+        }
+
+        // add up subrow totals
+        // repetition is in here
+        /*
+        for (int r=0; r<squareRows; r++){
+            for (int c=0; c<squareCols; c++){
+
+                int thisSquare = 0;
+                for (int j=0; j<k; j++){
+                    thisSquare += rowBarArray[r+j][c];
+                }
+                //System.out.println("thisSquare: " + thisSquare);
+                if(thisSquare>brightestSquare) brightestSquare=thisSquare;
+            
             }
         }
+        */
 
-        // this can't be made flexible for other sizes without another for loop
-        for (int focusPixel = 0; (focusPixel+12)<pixelArray.length; focusPixel++){
-            int squareTotal = 0;
-            squareTotal =   pixelArray[focusPixel]    + pixelArray[focusPixel+1]  + pixelArray[focusPixel+2] +
-                            pixelArray[focusPixel+5]  + pixelArray[focusPixel+6]  + pixelArray[focusPixel+7] +
-                            pixelArray[focusPixel+10] + pixelArray[focusPixel+11] + pixelArray[focusPixel+12];
-            if (squareTotal>brightestSquare) brightestSquare = squareTotal;
-            System.out.println("squareTotal: "+ squareTotal);  
-        }
 
-        int row = 0;
-        int col = 4;
-        System.out.println("Test: " + (pixelArray[((row*10)+(col*2))/2] == image[row][col]));      
+
 
         return brightestSquare;
     }
