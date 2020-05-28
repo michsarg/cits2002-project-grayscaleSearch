@@ -3,7 +3,10 @@
 * @author Michael Sargeant
 * */
 
-//import java.util.Arrays;
+import java.util.Arrays;
+import java.util.PriorityQueue;
+import java.util.*;
+
 
 
 public class MyProject implements Project {
@@ -38,13 +41,15 @@ public class MyProject implements Project {
 
      // current complexity: O(P)
      // maximum number of iterations will be the number of pixels
-
+    
+    // PREVIOUS SOLUTION 
+    /* 
     public int floodFillCount(int[][] image, int row, int col){
         //test for black pixel selection
         //too many variables?
     	if (image[row][col] == 0) return 0;
-    	changedPixels = 1;
-        colourSelected = image[row][col];     
+    	changedPixels = 1; // EXTERNAL
+        colourSelected = image[row][col]; // EXTERNAL     
         checked = new boolean[image.length][image[0].length];
         checked[row][col] = true;
         adjacencyCheck(image, row, col);
@@ -69,6 +74,83 @@ public class MyProject implements Project {
                 adjacencyCheck(image, row, col);
         }
     }
+    */
+
+    //@TODO REWRITE THIS WITH A QUEUE
+    //@TODO GET RID OF EXTERNAL VARIABLES
+
+    public class Pixel{
+        int row;
+        int col;
+
+        public Pixel (int row, int col){
+            this.row = row;
+            this.col = col;
+        } 
+    }
+
+    public int floodFillCount(int[][] image, int row, int col){
+
+        //check for black first
+        if (image[row][col] == 0) return 0;
+
+        Queue<Pixel> queue = new LinkedList<Pixel>();
+        queue.add(new Pixel(row, col));
+        int changedPixels = 1;
+        boolean[][] checked = new boolean[image.length][image[0].length];
+        checked[row][col] = true;
+
+
+
+        while (!queue.isEmpty()){
+            
+            Pixel thisPixel = queue.poll();
+
+            if (thisPixel.row+1 < image.length) {
+                if (image[thisPixel.row+1][thisPixel.col] == image[row][col] &&
+                    checked[thisPixel.row+1][thisPixel.col] == false ) {
+
+                        queue.add(new Pixel(thisPixel.row+1, thisPixel.col));
+                        checked[thisPixel.row+1][thisPixel.col] = true;
+                        changedPixels++;
+                }
+            }
+            
+            if (thisPixel.row-1 >= 0) {
+                if (image[thisPixel.row-1][thisPixel.col] == image[row][col] &&
+                    checked[thisPixel.row-1][thisPixel.col] == false ) {
+
+                        queue.add(new Pixel(thisPixel.row-1, thisPixel.col));
+                        checked[thisPixel.row-1][thisPixel.col] = true;
+                        changedPixels++;
+                }
+            }
+
+            if (thisPixel.col+1 < image[0].length) {
+                if (image[thisPixel.row][thisPixel.col+1] == image[row][col] &&
+                    checked[thisPixel.row][thisPixel.col+1] == false ) {
+
+                        queue.add(new Pixel(thisPixel.row, thisPixel.col+1));
+                        checked[thisPixel.row][thisPixel.col+1] = true;
+                        changedPixels++;
+                    }
+            }
+
+            if (thisPixel.col-1 >= 0) {
+                if (image[thisPixel.row][thisPixel.col-1] == image[row][col] &&
+                    checked[thisPixel.row][thisPixel.col-1] == false ) {
+
+                        queue.add(new Pixel(thisPixel.row, thisPixel.col-1));
+                        checked[thisPixel.row][thisPixel.col-1] = true;
+                        changedPixels++;
+                }
+            }
+        }
+        return changedPixels;
+    }
+
+
+
 
     /**
      * Compute the total brightness of the brightest exactly k*k square that appears in the given image.
@@ -87,87 +169,93 @@ public class MyProject implements Project {
      * @return The total brightness of the brightest square
      */
 
-     // current complexity O(Pk^2)
+     // current complexity O(Pk)?
     public int brightestSquare(int[][] image, int k){
        
         int brightestSquare = 0;
         int rowCount = image.length;
-            //System.out.println("rowCount: " + rowCount);
         int colCount = image[0].length;
-            //System.out.println("colCount: " + colCount);
-
-
-        int squareRows = 0;
-        int squareCols = 0;
-        for (int r=0; r+k<=rowCount; r++) squareRows++;
-        for (int r=0; r+k<=colCount; r++) squareCols++;
-            //System.out.println("squareRows: " + squareRows);
-            //System.out.println("squareCols: " + squareCols);
-        int[][] rowBarArray = new int[rowCount][squareCols];
-            //System.out.println("rowBarArray.length: " + rowBarArray.length);
-            //System.out.println("rowBarArray[0].length: " + rowBarArray[0].length);
+        int colIterations = colCount-k+1;
+        int[][] rowBarArray = new int[rowCount][colIterations];
 
         // move down the rows
         for (int r=0; r<rowCount; r++){
 
             // calculate first row bar of k length
-            for (int c=0; c<k; c++){
+            for (int c=0; c<k; c++) {
                 rowBarArray[r][0] += image[r][c];
             }
-            //System.out.println("rowBarArray["+r+"][0]: " + rowBarArray[r][0]);
 
             // calculate other row bars to the right, across columns
             for (int c=1; c+k<=colCount; c++){
                 rowBarArray[r][c] = rowBarArray[r][c-1];
                 rowBarArray[r][c] -= image[r][c-1];
-                rowBarArray[r][c] += image[r][c+k-1];
-                //System.out.println("rowBarArray["+r+"]["+c+"]: " + rowBarArray[r][c]);
+                rowBarArray[r][c] += image[r][c+k-1];    
             
-            
-                // could you put an if statement in here
-                // which detects three prior row segments
-                // then adds them up??????
+                // adds up preceding rowbars if square exists
+                // could this be made more efficeint here?
+                // instead of counting backwards it could go along with the calculations?
+                // 
                 if (r >= k-1) {
 
-                    //System.out.println("r: " + r);
                     int thisSquare = 0;
                     for (int j=0; j<k; j++){
-                        //System.out.println("test");
                         thisSquare += rowBarArray[r-j][c];
                     }
-
-                    //System.out.println("thisSquare: " + thisSquare);
+                
                     if(thisSquare>brightestSquare) brightestSquare=thisSquare;
+                
                 }
-
-
-            }
-
-
-
-        }
-
-        // add up subrow totals
-        // repetition is in here
-        /*
-        for (int r=0; r<squareRows; r++){
-            for (int c=0; c<squareCols; c++){
-
-                int thisSquare = 0;
-                for (int j=0; j<k; j++){
-                    thisSquare += rowBarArray[r+j][c];
-                }
-                //System.out.println("thisSquare: " + thisSquare);
-                if(thisSquare>brightestSquare) brightestSquare=thisSquare;
-            
             }
         }
-        */
-
-
-
 
         return brightestSquare;
+    }
+
+    //try again treating the image as a 1d array with a scaling framework over the top
+    //DELETE THIS
+    // I THINK ITS STILL PK^2
+    public int brightestSquare2(int[][] image, int k){
+
+        int brightestSquare2 = 0;
+        int rowCount = image.length;
+        int colCount = image[0].length;
+        
+        int length = (rowCount*colCount);
+        int head = 0;
+
+        int[] imageArray = new int[length];
+        int counter = 0;
+        for (int r=0; r<rowCount; r++){
+            for (int c=0; c<colCount; c++){
+            imageArray[counter] = image[r][c];
+            counter++;
+            }
+        }
+        System.out.println(Arrays.toString(imageArray));
+        
+        // traverses every pixel
+        
+        for (int i = 0; i<length; i++){
+
+      
+            int thisSquare = 0;
+
+            //for every k number of rows
+            for (int j=i; j<k ;j++)
+
+                // for every k pixels within a row
+                for (int m=0; m<k; m++){
+                    thisSquare += imageArray[(j*colCount)+m];
+                    System.out.println("[j][m]: " + j + " " + m);
+                }
+
+            System.out.println("thisSquare: " + thisSquare);
+
+
+            if (thisSquare>brightestSquare2) brightestSquare2 = thisSquare;
+        }
+        return brightestSquare2;
     }
 
     /**
@@ -191,13 +279,67 @@ public class MyProject implements Project {
      */
 
      //@TODO review ways of finding paths
+     // greedy algorithms : 
+     // this is written using Primms O(E log V) NO! this is for MST
+     // target complexity is Kruskals O(E log E) NO! this is for MST
+     // use Djikstras! NO! only the max brightness matters
+     //
+     // use an amended version of Kruskals because the value of a path
+     // is determinined by the ONE brightest pixel in its path
+     // BUT how to check a path is formed?
+     // breadth first search for connection - queue data structure
+
+    public int darkestPath(int[][] image, int ur, int uc, int vr, int vc) {
+        int brightest = 0;
+        PriorityQueue<Integer> queue = new PriorityQueue<Integer>();
+        boolean[][] linked = new boolean[image.length][image[0].length];
+        boolean completed = false;
+
+        // create queue of brightness values
+        for(int row=0; row<image.length; row++){
+            for(int col=0; col<image[0].length; col++){
+
+                if (!queue.contains(image[row][col])) 
+                queue.add(image[row][col]);
+
+            }
+        }
+
+        while (completed = false){
+
+            brightest = queue.poll();
+
+            for(int row=0; row<image.length; row++){
+                for(int col=0; col<image[0].length; col++){
+                
+                
+                
+                            
+                }
+            }
+
+        }
+        
+
+        return brightest;
+  
+    }
+
+
+
+
+    /* PREVIOUS SOLUTION
+
     public int darkestPath(int[][] image, int ur, int uc, int vr, int vc){
         int brightest = 0;
+        
         //for checking not repeating
         this.checked = new boolean[image.length][image[0].length];
         this.checked[ur][uc] = true;
+        
         //start darkest path
         darkestAdjacent = findDarkestAdjacent(image, ur, uc);
+
         //termination condition
         while(checked[vr][vc] == false) {
             darkestAdjacent = findDarkestAdjacent(image, darkestAdjacent[0], darkestAdjacent[1]);
@@ -207,20 +349,26 @@ public class MyProject implements Project {
     }
 
     public int[] findDarkestAdjacent(int[][] image, int focusRow, int focusCol){
-        // darkest[] = {row, col, brightness}
+        
+        //darkest[] = {row, col, brightness}
         int[] darkest = {-1, -1, 300};
+        
         //set up array of co-ordinates and brightness
-        int[][] nextPos = { {focusRow-1, focusCol  , 300},    //north
-                            {focusRow  , focusCol+1, 300},    //east
-                            {focusRow+1, focusCol ,  300},    //south
-                            {focusRow  , focusCol-1, 300}};   //west
+        int[][] nextPos = { {focusRow-1, focusCol  , 300},    //up
+                            {focusRow  , focusCol+1, 300},    //right
+                            {focusRow+1, focusCol ,  300},    //down
+                            {focusRow  , focusCol-1, 300}};   //left
+        
         for (int i = 0; i < 4; i++) {
+            
             // check for range
             if (nextPos[i][0] >= 0  &&  nextPos[i][0] < image.length   &&
                 nextPos[i][1] >= 0  &&  nextPos[i][1] < image[0].length){
+                    
                     //check for checked
                     if (checked[nextPos[i][0]][nextPos[i][1]] == false ) {
-                        nextPos[i][2] = image[nextPos[i][0]][nextPos[i][1]];       
+                        nextPos[i][2] = image[nextPos[i][0]][nextPos[i][1]];
+
                         //check for checked and highest
                         if (nextPos[i][2] < darkest[2]) {
                             darkest[0] = nextPos[i][0];
@@ -232,7 +380,8 @@ public class MyProject implements Project {
         }
         checked[darkest[0]][darkest[1]] = true;
         return darkest;
-    }
+    } 
+    */
 
     /**
      * Compute the results of a list of queries on the given image.
@@ -253,7 +402,9 @@ public class MyProject implements Project {
      * @param queries The list of query row segments
      * @return The list of brightest pixels for each query row segment
      */
-    public int[] brightestPixelsInRowSegments(int[][] image, int[][] queries){
+    
+    // FIRST VERSION WORKING
+     public int[] brightestPixelsInRowSegments(int[][] image, int[][] queries){
         int[] brightestList = new int[queries.length];
         for (int i=0; i<queries.length; i++){
             int brightest = 0;
@@ -266,4 +417,107 @@ public class MyProject implements Project {
         }
         return brightestList;
     }
+
+/* 
+
+    //REVISED VERSION
+    // Goal: O(Pixels*Columns + Queries)
+    // aka: O(Rows*Rows*Columns + Queries)
+    // Can I sort the queries so they're addressed in sequential order?
+    // NO because there may be overlap and more than one per row
+    public int[] brightestPixelsInRowSegments(int[][] image, int[][] queries){
+        
+        int[] brightestList = new int[queries.length];
+        PriorityQueue<RowSegment> queue = new PriorityQueue<RowSegment>();
+
+        int queryCount = 0;
+        for (int i=0; i<queries.length; i++){
+            //System.out.println("queryCount: " + queryCount);
+            queue.add(new RowSegment(queries[i][0], queries[i][1], queries[i][2], queryCount));
+            queryCount++;
+        }
+        
+        //   PROBLEM WITH THIS IMPLEMENTATION: CANT DEAL WITH OVERLAPPING QUERIES
+
+
+        RowSegment thisRowSegment = queue.poll();
+        //System.out.println(thisRowSegment.row + " " + thisRowSegment.colStart + " " +  thisRowSegment.colEnd);
+
+        for(int row=0; row<image.length; row++){
+            System.out.println("row: " + row);
+
+            for (int col=0; col<image[0].length; col++){
+
+                System.out.println(row + " " + col);
+
+                if (row == thisRowSegment.row &&
+                    col >= thisRowSegment.colStart) { 
+                        //System.out.println("derp");
+                        System.out.println("image[row][col]: " + image[row][col]);
+                        if (thisRowSegment.brightest <= image[row][col]) {
+
+                                thisRowSegment.brightest = image[row][col];
+                                System.out.println("brightest: " + thisRowSegment.brightest);
+                        }
+                    
+                        //System.out.println("thisRowSegment.queryCount: " + thisRowSegment.queryCount);
+                        if (thisRowSegment.colEnd == col) {
+
+                            brightestList[thisRowSegment.queryCount] = thisRowSegment.brightest;
+                            System.out.println("brightestList[thisRowSegment.queryCount]: " + brightestList[thisRowSegment.queryCount]);
+                            System.out.println("thisRowSegment.brightest: " + thisRowSegment.brightest);
+                            
+                            thisRowSegment = queue.poll();
+                            System.out.println("thisRowSegment.queryCount: " + thisRowSegment.queryCount);
+                        }
+
+                    }
+
+
+            }
+
+
+        }
+
+        /* 
+        RowSegment thisRowSegment;
+        thisRowSegment = queue.poll();
+        System.out.println(thisRowSegment.row + " " + thisRowSegment.colStart + " " + thisRowSegment.colEnd);
+        thisRowSegment = queue.poll();
+        System.out.println(thisRowSegment.row + " " + thisRowSegment.colStart + " " + thisRowSegment.colEnd);
+        thisRowSegment = queue.poll();
+        System.out.println(thisRowSegment.row + " " + thisRowSegment.colStart + " " + thisRowSegment.colEnd);
+         */
+        /*
+        return brightestList;
+    }
+
+    public class RowSegment implements Comparable<RowSegment> {
+
+        private int row;
+        private int colStart;
+        private int colEnd;
+        private int brightest = 0;
+        private int queryCount;
+
+        public RowSegment(int row, int colStart, int colEnd, int queryCount){
+            this.row = row;
+            this.colStart = colStart;
+            this.colEnd = colEnd;
+            this.queryCount = queryCount;
+        }
+
+        @Override
+        public int compareTo(RowSegment o){
+            if (row == o.row) return 0;
+            if (this.row > o.row) return 1;
+            else return -1;
+        }
+
+    }
+
+ */
+
+
+
 }
