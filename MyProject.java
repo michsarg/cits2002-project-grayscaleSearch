@@ -84,58 +84,50 @@ public class MyProject implements Project {
         if (image[row][col] == 0) return 0; // black first check
         
         boolean[][] checked = new boolean[image.length][image[0].length];
-        Queue<PixelFF> queue = new LinkedList<PixelFF>();
-        queue.add(new PixelFF(row, col));
+        Queue<Pixel> queue = new LinkedList<Pixel>();
+        queue.add(new Pixel(row, col));
         checked[row][col] = true;
         int changedPixels = 1;
 
         while (!queue.isEmpty()){
-            PixelFF pixel = queue.poll();
+            Pixel current = queue.poll();
 
-            if (pixel.row+1 < image.length) {
-                if (image[pixel.row+1][pixel.col] == image[row][col] && 
-                    checked[pixel.row+1][pixel.col] == false ) {
-                        checked[pixel.row+1][pixel.col] = true;
+            if (current.row+1 < image.length) {
+                if (image[current.row+1][current.col] == image[row][col] && 
+                    checked[current.row+1][current.col] == false ) {
+                        checked[current.row+1][current.col] = true;
                         changedPixels++;                
-                        queue.add(new PixelFF(pixel.row+1, pixel.col));
+                        queue.add(new Pixel(current.row+1, current.col));
                 }
             }
-            if (pixel.row-1 >= 0) {
-                if (image[pixel.row-1][pixel.col] == image[row][col] && 
-                    checked[pixel.row-1][pixel.col] == false ) {
-                        checked[pixel.row-1][pixel.col] = true;
+            if (current.row-1 >= 0) {
+                if (image[current.row-1][current.col] == image[row][col] && 
+                    checked[current.row-1][current.col] == false ) {
+                        checked[current.row-1][current.col] = true;
                         changedPixels++;                
-                        queue.add(new PixelFF(pixel.row-1, pixel.col));
+                        queue.add(new Pixel(current.row-1, current.col));
                 }
             }
-            if (pixel.col+1 < image[0].length) {
-                if (image[pixel.row][pixel.col+1] == image[row][col] && 
-                    checked[pixel.row][pixel.col+1] == false ) {
-                        checked[pixel.row][pixel.col+1] = true;
+            if (current.col+1 < image[0].length) {
+                if (image[current.row][current.col+1] == image[row][col] && 
+                    checked[current.row][current.col+1] == false ) {
+                        checked[current.row][current.col+1] = true;
                         changedPixels++;    
-                        queue.add(new PixelFF(pixel.row, pixel.col+1));
+                        queue.add(new Pixel(current.row, current.col+1));
                 }
             }
-            if (pixel.col-1 > 0) {
-                if (image[pixel.row][pixel.col-1] == image[row][col] && 
-                    checked[pixel.row][pixel.col-1] == false ) {
-                        checked[pixel.row][pixel.col-1] = true;
+            if (current.col-1 > 0) {
+                if (image[current.row][current.col-1] == image[row][col] && 
+                    checked[current.row][current.col-1] == false ) {
+                        checked[current.row][current.col-1] = true;
                         changedPixels++;    
-                        queue.add(new PixelFF(pixel.row, pixel.col-1));
+                        queue.add(new Pixel(current.row, current.col-1));
                 }
             }
         }
         return changedPixels;
     }
 
-    public class PixelFF{
-        int row;
-        int col;
-        public PixelFF (int row, int col){
-            this.row = row;
-            this.col = col;
-        } 
-    }
 
 
 
@@ -358,64 +350,67 @@ public class MyProject implements Project {
 
         int brightest = 0;
         boolean[][] checked = new boolean[image.length][image[0].length];
-        PriorityQueue<pixelDP> queue = new PriorityQueue<pixelDP>();
-        queue.add(new pixelDP(ur, uc, image[ur][uc]));
+        PriorityQueue<Pixel> queue = new PriorityQueue<Pixel>();
+        queue.add(new Pixel(ur, uc, image[ur][uc]));
         checked[ur][uc] = true;
 
         while(!queue.isEmpty()){
 
-            pixelDP thisPixelDP = queue.poll();
-            if (thisPixelDP.brightness > brightest) brightest = thisPixelDP.brightness; //brightness check
-            if (thisPixelDP.row == vr && thisPixelDP.col == vc) break; // destination check
+            Pixel pixel = queue.poll();
+            if (pixel.brightness > brightest) brightest = pixel.brightness; //brightness check
+            if (pixel.row == vr && pixel.col == vc) break; // destination check
         
-            if (thisPixelDP.row+1 < image.length) {
-                if (checked[thisPixelDP.row+1][thisPixelDP.col] == false) {
-                    checked[thisPixelDP.row+1][thisPixelDP.col] = true;
-                    queue.add(new pixelDP(thisPixelDP.row+1, thisPixelDP.col, 
-                                        image[thisPixelDP.row+1][thisPixelDP.col]));
+            if (pixel.row+1 < image.length) {
+                if (checked[pixel.row+1][pixel.col] == false) {
+                    checked[pixel.row+1][pixel.col] = true;
+                    queue.add(new Pixel(pixel.row+1, pixel.col, 
+                                        image[pixel.row+1][pixel.col]));
                 }
             }
-            if (thisPixelDP.row-1 >= 0) {
-                if (checked[thisPixelDP.row-1][thisPixelDP.col] == false) {
-                    checked[thisPixelDP.row-1][thisPixelDP.col] = true;
-                    queue.add(new pixelDP(thisPixelDP.row-1, thisPixelDP.col, 
-                                        image[thisPixelDP.row-1][thisPixelDP.col]));
+            if (pixel.row-1 >= 0) {
+                if (checked[pixel.row-1][pixel.col] == false) {
+                    checked[pixel.row-1][pixel.col] = true;
+                    queue.add(new Pixel(pixel.row-1, pixel.col, 
+                                        image[pixel.row-1][pixel.col]));
                 }
             }
-            if (thisPixelDP.col+1 < image[0].length) {
-                if (checked[thisPixelDP.row][thisPixelDP.col+1] == false) {
-                    checked[thisPixelDP.row][thisPixelDP.col+1] = true;
-                    queue.add(new pixelDP(thisPixelDP.row, thisPixelDP.col+1, 
-                                        image[thisPixelDP.row][thisPixelDP.col+1]));
+            if (pixel.col+1 < image[0].length) {
+                if (checked[pixel.row][pixel.col+1] == false) {
+                    checked[pixel.row][pixel.col+1] = true;
+                    queue.add(new Pixel(pixel.row, pixel.col+1, 
+                                        image[pixel.row][pixel.col+1]));
                 }
             }
-            if (thisPixelDP.col-1 >= 0) {
-                if (checked[thisPixelDP.row][thisPixelDP.col-1] == false) {
-                    checked[thisPixelDP.row][thisPixelDP.col-1] = true;
-                    queue.add(new pixelDP(thisPixelDP.row, thisPixelDP.col-1, 
-                                        image[thisPixelDP.row][thisPixelDP.col-1]));
+            if (pixel.col-1 >= 0) {
+                if (checked[pixel.row][pixel.col-1] == false) {
+                    checked[pixel.row][pixel.col-1] = true;
+                    queue.add(new Pixel(pixel.row, pixel.col-1, 
+                                        image[pixel.row][pixel.col-1]));
                 }
             }   
         }
         return brightest;
     }
 
-    public class pixelDP implements Comparable<pixelDP> {
+    public class Pixel implements Comparable<Pixel> {
         int row;
         int col;
         int brightness;
-        public pixelDP (int row, int col, int brightness){
+        public Pixel(int row, int col){
+            this.row = row;
+            this.col = col;
+        }
+        public Pixel (int row, int col, int brightness){
             this.row = row;
             this.col = col;
             this.brightness = brightness;
         }
         @Override
-        public int compareTo(pixelDP o){
+        public int compareTo(Pixel o){
             if (brightness == o.brightness) return 0;
             if (brightness >  o.brightness) return 1;
             else return -1;
         }
-
     }
 
     /**
